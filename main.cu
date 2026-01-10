@@ -1,6 +1,8 @@
-#include <iostream>
+#include "viewport.cuh"
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+int main(int argc, char *argv[]) {
+    Viewport viewport;
+
+    // Just jump straight into the viewport loop for now
+    return viewport.ShowViewport();
 }

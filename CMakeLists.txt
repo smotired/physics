@@ -9,7 +9,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
 
 # Main executable
-add_executable(physics main.cu)
+add_executable(physics main.cu
+        kernels.cuh
+        settings.cuh
+        viewport.cu
+        viewport.cuh)
 
 set_target_properties(physics PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON)
