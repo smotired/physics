@@ -10,8 +10,6 @@
 /// This code is provided for educational use only. Redistribution, sharing, or
 /// sublicensing of this code or its derivatives is strictly prohibited.
 #include "viewport.cuh"
-
-#include "kernels.cuh"
 #include "settings.cuh"
 
 int Viewport::Initialize() {
@@ -46,36 +44,20 @@ int Viewport::Initialize() {
 }
 
 void Viewport::DrawLoop() const {
-    CLERR();
-
-    // Allocate memory for the image
-    char *image;
-    CERR(cudaMalloc(&image, sizeof(char) * 3 * IMAGE_SIZE));
-
-    // Set up thread count
-    constexpr dim3 numBlocks((IMAGE_WIDTH + BLOCKDIM - 1) / BLOCKDIM, IMAGE_HEIGHT + BLOCKDIM - 1 / BLOCKDIM);
-    constexpr dim3 threadsPerBlock(BLOCKDIM, BLOCKDIM);
-
-    // Launch the kernel
-    DefaultImage<<<numBlocks, threadsPerBlock>>>(image);
-    CLERR();
-    CERR(cudaDeviceSynchronize());
-
     // Prepare texture for writes
     void *target; // Pointer to pixels array
     int pitch; // Length of a row of pixels. Texture size = image size so this is unused.
     SDL_LockTexture(screen, nullptr, &target, &pitch);
 
+    // Call program
+    program.StepFrame(target);
+
     // Write to texture
-    CERR(cudaMemcpy(target, image, sizeof(char) * 3 * IMAGE_SIZE, cudaMemcpyDeviceToHost));
     SDL_UnlockTexture(screen);
 
     // Draw to screen
     SDL_RenderTexture(renderer, screen, nullptr, nullptr);
     SDL_RenderPresent(renderer);
-
-    // Cleanup
-    cudaFree(image);
 }
 
 

@@ -12,8 +12,6 @@
 #pragma once
 #include <SDL3/SDL_log.h>
 
-// Program settings
-
 // Rendering settings
 #define IMAGE_WIDTH 1024
 #define IMAGE_HEIGHT 1024
