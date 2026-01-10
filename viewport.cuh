@@ -19,9 +19,17 @@ class Viewport {
     SDL_Window *window = nullptr;
     SDL_Renderer *renderer = nullptr;
 
+    SDL_Texture *screen = nullptr;
+
+    /// Initialize the program.
+    int Initialize();
+
     /// Clean up window and renderer, and stop program.
     void Cleanup();
+
+    /// Draw a single frame
+    void DrawLoop() const;
 public:
-    /// Starts the display program.
-    int ShowViewport();
+    /// Starts the display program and runs until it finishes.
+    int StartViewport();
 };

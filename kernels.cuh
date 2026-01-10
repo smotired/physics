@@ -14,19 +14,19 @@
 #include "settings.cuh"
 
 /// Render a very basic testing image that trends toward red on the X axis and green on the Y axis.
-/// \param output: Array of size 3xy of floats for output pixels.
-__global__ void DefaultImage(float *output) {
+/// \param output: Array of size 3xy of chars for output pixels.
+__global__ void DefaultImage(char *output) {
     // Get target pixel
     const unsigned int pX = blockIdx.x * blockDim.x + threadIdx.x;
     const unsigned int pY = blockIdx.y * blockDim.y + threadIdx.y;
     if (pX >= IMAGE_WIDTH || pY >= IMAGE_HEIGHT) return;
     const unsigned int pI = pY * IMAGE_WIDTH + pX;
 
-    constexpr float OneOverWidthMinusOne = 1 / static_cast<float>(IMAGE_WIDTH);
-    constexpr float OneOverHeightMinusOne = 1 / static_cast<float>(IMAGE_HEIGHT);
+    constexpr float OneOverWidth = 1 / static_cast<float>(IMAGE_WIDTH);
+    constexpr float OneOverHeight = 1 / static_cast<float>(IMAGE_HEIGHT);
 
     // Approach red on the X axis and green on the Y axis
-    output[3 * pI + 0] = pX * OneOverWidthMinusOne;
-    output[3 * pI + 1] = pY * OneOverHeightMinusOne;
+    output[3 * pI + 0] = 256 * pX * OneOverWidth;
+    output[3 * pI + 1] = 256 * pY * OneOverHeight;
     output[3 * pI + 2] = 0;
 }

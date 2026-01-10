@@ -4,5 +4,5 @@ int main(int argc, char *argv[]) {
     Viewport viewport;
 
     // Just jump straight into the viewport loop for now
-    return viewport.ShowViewport();
+    return viewport.StartViewport();
 }
