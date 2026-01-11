@@ -1,0 +1,258 @@
+/// \file       float3.cuh
+/// \author     Sam Hill (whatinthesamhill.dev)
+/// \version    1.0
+/// \date       January 10, 2026
+///
+/// \brief Vector operations callable on device. Originally written for my
+/// ray tracing program.
+///
+/// Copyright (c) 2026 Sam Hill. All Rights Reserved.
+///
+/// This code is provided for educational use only. Redistribution, sharing, or
+/// sublicensing of this code or its derivatives is strictly prohibited.
+#pragma once
+#include <cuda_runtime.h>
+
+#define BIGFLOAT 3.402823466e+38f
+
+// Shorthand for make_float3
+#define float3(x, y, z) make_float3(x, y, z)
+#define copyfloat3(from) make_float3(from.x, from.y, from.z)
+
+// Default vectors
+#define F3_ZERO float3(0.0f, 0.0f, 0.0f)
+#define F3_RIGHT float3(1.0f, 0.0f, 0.0f)
+#define F3_UP float3(0.0f, 1.0f, 0.0f)
+#define F3_FORWARD float3(0.0f, 0.0f, 1.0f)
+#define F3_ONE float3(1.0f, 1.0f, 1.0f)
+
+// Operator overloads
+
+/// <summary>
+/// Negate a vector
+/// </summary>
+/// <param name="a">The vector</param>
+/// <returns>The negated vector</returns>
+__host__ __device__ inline float3 operator-(const float3 a) {
+    return make_float3(-a.x, -a.y, -a.z);
+}
+
+/// <summary>
+/// Check vector equality
+/// </summary>
+__host__ __device__ inline bool operator==(const float3 a, const float3 b) {
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+
+/// <summary>
+/// Check vector inequality
+/// </summary>
+__host__ __device__ inline bool operator!=(const float3 a, const float3 b) {
+    return a.x != b.x || a.y != b.y || a.z != b.z;
+}
+
+/// <summary>
+/// Multiply a vector by a scalar
+/// </summary>
+/// <param name="a">The vector</param>
+/// <param name="s">The scalar</param>
+/// <returns>The scaled vector</returns>
+__host__ __device__ inline float3 operator*(const float3 a, const float s) {
+    return make_float3(a.x * s, a.y * s, a.z * s);
+}
+
+/// <summary>
+/// Multiply a vector by a scalar
+/// </summary>
+/// <param name="s">The scalar</param>
+/// <param name="a">The vector</param>
+/// <returns>The scaled vector</returns>
+__host__ __device__ inline float3 operator*(const float s, const float3 a) {
+    return make_float3(a.x * s, a.y * s, a.z * s);
+}
+
+/// <summary>
+/// Multiply an existing vector by a scalar
+/// </summary>
+/// <param name="a">The vector</param>
+/// <param name="s">The scalar</param>
+/// <returns>The scaled vector</returns>
+__host__ __device__ inline void operator*=(float3& a, const float s) {
+    a.x *= s;
+    a.y *= s;
+    a.z *= s;
+}
+
+/// <summary>
+/// Add two vectors together.
+/// </summary>
+/// <param name="a">The first vector.</param>
+/// <param name="b">The second vector.</param>
+/// <returns>The sum of the two vectors.</returns>
+__host__ __device__ inline float3 operator+(const float3 a, const float3 b) {
+    return make_float3(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
+/// <summary>
+/// Add a vector to another vector.
+/// </summary>
+/// <param name="a">The vector to add to.</param>
+/// <param name="b">The second vector.</param>
+__host__ __device__ inline void operator+=(float3& a, const float3 b) {
+    a.x += b.x;
+    a.y += b.y;
+    a.z += b.z;
+}
+
+__device__ inline void atomicF3Add(float3& a, const float3 b) {
+    atomicAdd(&a.x, b.x);
+    atomicAdd(&a.y, b.y);
+    atomicAdd(&a.z, b.z);
+}
+
+/// <summary>
+/// Subtract two vectors.
+/// </summary>
+/// <param name="a">The sum vector.</param>
+/// <param name="b">The vector to subtract.</param>
+/// <returns>The difference of the two vectors.</returns>
+__host__ __device__ inline float3 operator-(const float3 a, const float3 b) {
+    return make_float3(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+/// <summary>
+/// Subtract a vector from another vector.
+/// </summary>
+/// <param name="a">The vector to add to.</param>
+/// <param name="b">The second vector.</param>
+__host__ __device__ inline void operator-=(float3& a, const float3 b) {
+    a.x -= b.x;
+    a.y -= b.y;
+    a.z -= b.z;
+}
+
+/// <summary>
+/// Multiply two vectors component-wise
+/// </summary>
+/// <param name="a">The first vector.</param>
+/// <param name="b">The second vector.</param>
+/// <returns>The product vector of the components of the two vectors.</returns>
+__host__ __device__ inline float3 operator*(const float3 a, const float3 b) {
+    return make_float3(a.x * b.x, a.y * b.y, a.z * b.z);
+}
+
+/// <summary>
+/// Multiply a vector component-wise by another vector
+/// </summary>
+/// <param name="a">The first vector.</param>
+/// <param name="b">The second vector.</param>
+__host__ __device__ inline void operator*=(float3 &a, const float3 b) {
+    a.x *= b.x;
+    a.y *= b.y;
+    a.z *= b.z;
+}
+
+/// <summary>
+/// Computes the dot product of two vectors.
+/// </summary>
+/// <param name="a">The first vector.</param>
+/// <param name="b">The second vector.</param>
+/// <returns>The dot product of the two vectors.</returns>
+__host__ __device__ inline float operator%(const float3 a, const float3 b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+/// <summary>
+/// Computes the cross product of two vectors.
+/// </summary>
+/// <param name="a">The first vector.</param>
+/// <param name="b">The second vector.</param>
+/// <returns>The cross product of the two vectors.</returns>
+__host__ __device__ inline float3 cross(const float3 a, const float3 b) {
+    return F3_RIGHT * (a.y * b.z - b.y * a.z) - F3_UP * (a.x * b.z - b.x * a.z) + F3_FORWARD * (a.x * b.y - b.x * a.y);
+}
+
+/// <summary>
+/// Calculate the squared length of a vector
+/// </summary>
+/// <param name="a">The vector.</param>
+/// <returns>The squared length of the vector.</returns>
+__host__ __device__ inline float lengthsq(const float3 a) {
+    return a % a;
+}
+
+/// <summary>
+/// Calculate the length of a vector
+/// </summary>
+/// <param name="a">The vector.</param>
+/// <returns>The length of the vector.</returns>
+__host__ __device__ inline float length(const float3 a) {
+    return sqrtf(a % a);
+}
+
+/// <summary>
+/// Calculate the normalzed form of a vector
+/// </summary>
+/// <param name="a">The vector.</param>
+/// <returns>The normalized vector.</returns>
+__host__ __device__ inline float3 asNorm(const float3 a) {
+    float scale = 1.0f / sqrtf(a % a);
+    return scale * a;
+}
+
+/// <summary>
+/// Normalize a vector in place.
+/// </summary>
+/// <param name="a">The vector.</param>
+/// <returns>The vector, normalized in place</returns>
+__host__ __device__ inline void doNorm(float3& a) {
+    float scale = 1.0f / sqrtf(a % a);
+    a *= scale;
+}
+
+/// <summary>Set values on a float3.</summary>
+__host__ __device__ inline void set(float3& a, const float x, const float y, const float z) {
+    a.x = x; a.y = y; a.z = z;
+}
+
+// Index operators
+
+__host__ __device__ inline float& ref(float3& a, const unsigned int i) {
+    switch (i) {
+        case 0: return a.x;
+        case 1: return a.y;
+        case 2: return a.z;
+        default: return a.x;
+    }
+}
+
+__host__ __device__ inline unsigned int& ref(uint3& a, const unsigned int i) {
+    switch (i) {
+        case 0: return a.x;
+        case 1: return a.y;
+        case 2: return a.z;
+        default: return a.x;
+    }
+}
+
+__host__ __device__ inline float ref(const float3& a, const unsigned int i) {
+    switch (i) {
+        case 0: return a.x;
+        case 1: return a.y;
+        case 2: return a.z;
+        default: return a.x;
+    }
+}
+
+__host__ __device__ inline unsigned int ref(const uint3& a, const unsigned int i) {
+    switch (i) {
+        case 0: return a.x;
+        case 1: return a.y;
+        case 2: return a.z;
+        default: return a.x;
+    }
+}
+
+__host__ __device__ inline bool checknan(const float3& f) {
+    return std::isnan(f.x) || std::isnan(f.y) || std::isnan(f.z);
+}

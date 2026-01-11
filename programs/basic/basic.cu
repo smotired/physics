@@ -20,7 +20,7 @@ void BasicProgram::StepFrame(void *target) {
     CERR(cudaMalloc(&image, sizeof(char) * 3 * IMAGE_SIZE));
 
     // Set up thread count
-    constexpr dim3 numBlocks((IMAGE_WIDTH + BLOCKDIM - 1) / BLOCKDIM, IMAGE_HEIGHT + BLOCKDIM - 1 / BLOCKDIM);
+    constexpr dim3 numBlocks((IMAGE_WIDTH + BLOCKDIM - 1) / BLOCKDIM, (IMAGE_HEIGHT + BLOCKDIM - 1) / BLOCKDIM);
     constexpr dim3 threadsPerBlock(BLOCKDIM, BLOCKDIM);
 
     // Launch the kernel

@@ -75,6 +75,11 @@ int Viewport::StartViewport() {
     if (const int initialize_error = Initialize(); initialize_error)
         return initialize_error;
 
+    // Initialize for framerate
+    unsigned int last = SDL_GetTicks();
+    unsigned int next = SDL_GetTicks();
+    double delta = 0;
+
     // Start the program loop
     bool running = true;
     while (running) {
@@ -91,8 +96,17 @@ int Viewport::StartViewport() {
             }
         }
 
-        // Draw to screen
-        DrawLoop();
+        // Calculate frame rate
+        next = SDL_GetTicks();
+        delta = next - last;
+
+        // If we should render
+        if (delta > tickDelta) {
+            last = next;
+
+            // Step and draw to screen
+            DrawLoop();
+        }
     }
 
     // Clean up

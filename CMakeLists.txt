@@ -23,7 +23,11 @@ set(BASIC_PROGRAM
         programs/basic/basic.cu
         programs/basic/basic.cuh)
 
-set(PROGRAMS ${BASIC_PROGRAM})
+set(PARTICLES_PROGRAM
+        programs/particles/particles.cu
+        programs/particles/particles.cuh)
+
+set(PROGRAMS ${BASIC_PROGRAM} ${PARTICLES_PROGRAM})
 
 # --------------------------------
 # Final executable
@@ -32,7 +36,7 @@ set(PROGRAMS ${BASIC_PROGRAM})
 # Set up
 add_executable(${PROJECT_NAME} main.cu viewport.cu ${PROGRAMS})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR} utils)
 
 # --------------------------------
 # Link external libraries

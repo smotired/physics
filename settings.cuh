@@ -16,10 +16,12 @@
 #define IMAGE_WIDTH 1024
 #define IMAGE_HEIGHT 1024
 #define BLOCKDIM 16
+#define MAX_FPS 60
 
 // Other constants for settings
 constexpr double ASPECT_RATIO = IMAGE_WIDTH / static_cast<double>(IMAGE_HEIGHT);
 constexpr unsigned int IMAGE_SIZE = IMAGE_WIDTH * IMAGE_HEIGHT;
+constexpr float tickDelta = 1000.0f / static_cast<float>(MAX_FPS);
 
 // Function macros
 #define sdlprint(...) SDL_LogMessage(0, SDL_LOG_PRIORITY_DEBUG, __VA_ARGS__)
