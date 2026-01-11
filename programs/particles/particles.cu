@@ -42,6 +42,7 @@ __global__ void Simulate(FieldData const& fieldData) {
     for (unsigned int x = 0; x < FIELD_WIDTH; x++) {
         for (unsigned int y = 0; y < FIELD_HEIGHT; y++) {
             if (x == pX && y == pY) continue;
+            if (fieldData.mass[y * FIELD_WIDTH + x] <= epsMass) continue;
 
             const float3 offset = pos - float3(x, y, 0);
             const float3 direction = asNorm(offset);
@@ -60,7 +61,8 @@ __global__ void Simulate(FieldData const& fieldData) {
             if (x == 0 && y == 0) continue;
             const int3 nP = make_int3(pX + x, pY + y, 0);
             if (!bounded(nP)) continue;
-            const unsigned int nI = nP.y * FIELD_WIDTH + nP.x;
+                const unsigned int nI = nP.y * FIELD_WIDTH + nP.x;
+            if (fieldData.mass[nI] <= epsMass) continue;
 
             // less force from diagonal neighbors
             const float distmult = abs(x + y) == 1 ? 1.0f : 0.707f;
@@ -129,7 +131,7 @@ __global__ void PushFields(FieldData const& fieldData, const bool randomize) {
         curand_init(pI, 0, 0, &rng);
 
         // Randomize mass and velocity
-        const float mass = RandomFloat(&rng, MIN_INIT_MASS, MAX_INIT_MASS);
+        const float mass = (1.0f - sqrtf(1.0f - RandomFloat(&rng))) * MAX_INIT_MASS; // trend toward regions of less mass
         const float momentumX = RandomFloat(&rng, -MAX_INIT_VEL, MAX_INIT_VEL) * mass;
         const float momentumY = RandomFloat(&rng, -MAX_INIT_VEL, MAX_INIT_VEL) * mass;
 

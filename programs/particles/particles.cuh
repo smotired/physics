@@ -16,7 +16,6 @@
 // Simulation settings
 #define FIELD_WIDTH 512
 #define FIELD_HEIGHT 512
-#define MIN_INIT_MASS 0.0f
 #define MAX_INIT_MASS 1.0f
 #define MAX_INIT_VEL 1.0f
 #define GRAVITATIONAL_CONSTANT 2e-1f
@@ -32,7 +31,7 @@
 constexpr unsigned int FIELD_SIZE = FIELD_WIDTH * FIELD_HEIGHT;
 constexpr dim3 simBlocks((FIELD_WIDTH + FIELD_BLOCKDIM - 1) / FIELD_BLOCKDIM, (FIELD_HEIGHT + FIELD_BLOCKDIM - 1) / FIELD_BLOCKDIM);
 constexpr dim3 simThreads(FIELD_BLOCKDIM, FIELD_BLOCKDIM);
-constexpr float massThreshold = 1.0f / static_cast<float>(MAX_INIT_MASS) / TARGET_DENSITY; // multiplier for mass. target density should be white.
+constexpr float massThreshold = 1.0f / TARGET_DENSITY; // multiplier for mass. target density should be white.
 
 /// Information about the fields. Tracks pointers
 struct FieldData {
