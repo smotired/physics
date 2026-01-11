@@ -14,11 +14,12 @@
 #include "settings.cuh"
 
 // Simulation settings
-#define FIELD_WIDTH 1024
-#define FIELD_HEIGHT 1024
+#define FIELD_WIDTH 512
+#define FIELD_HEIGHT 512
 #define MIN_INIT_MASS 0.0f
 #define MAX_INIT_MASS 1.0f
-#define MAX_INIT_VEL 0.0f
+#define MAX_INIT_VEL 1.0f
+#define GRAVITATIONAL_CONSTANT 2e-1f
 
 // Technical
 #define FIELD_BLOCKDIM 16

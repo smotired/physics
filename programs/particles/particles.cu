@@ -35,7 +35,23 @@ __global__ void Simulate(FieldData const& fieldData) {
     const float3 pos = float3(pX, pY, 0);
     const float mass = fieldData.mass[pI];
     const float3 momentum = fieldData.momentum[pI];
-    const float3 velocity = momentum * (1.0f / mass);
+    float3 velocity = momentum * (1.0f / mass);
+
+    // Calculate acceleration from gravity
+    float3 grav_accel = F3_ZERO;
+    for (unsigned int x = 0; x < FIELD_WIDTH; x++) {
+        for (unsigned int y = 0; y < FIELD_HEIGHT; y++) {
+            if (x == pX && y == pY) continue;
+
+            const float3 offset = pos - float3(x, y, 0);
+            const float3 direction = asNorm(offset);
+            const float r2 = lengthsq(offset);
+
+            // Standard gravity formula but with acceleration canceled.
+            grav_accel += -direction * (fieldData.mass[y * FIELD_WIDTH + x] / r2 * GRAVITATIONAL_CONSTANT);
+        }
+    }
+    velocity += grav_accel;
 
     // Decide exact position if particles at this field move this way
     const float3 next = pos + velocity;

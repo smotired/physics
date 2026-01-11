@@ -13,8 +13,8 @@
 #include <SDL3/SDL_log.h>
 
 // Rendering settings
-#define IMAGE_WIDTH 1024
-#define IMAGE_HEIGHT 1024
+#define IMAGE_WIDTH 512
+#define IMAGE_HEIGHT 512
 #define BLOCKDIM 16
 #define MAX_FPS 60
 
