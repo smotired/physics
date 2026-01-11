@@ -21,12 +21,18 @@
 #define MAX_INIT_VEL 1.0f
 #define GRAVITATIONAL_CONSTANT 2e-1f
 
+/// Density the particles will try to maintain. If there is more than this much mass at a point, it will exert a force on all neighbors.
+#define TARGET_DENSITY 2.0f
+#define DENSITY_CONSTANT 8e0f
+
 // Technical
 #define FIELD_BLOCKDIM 16
+#define DENSITY_COLOR_THRESHOLD_1 4
+#define DENSITY_COLOR_THRESHOLD_2 4
 constexpr unsigned int FIELD_SIZE = FIELD_WIDTH * FIELD_HEIGHT;
 constexpr dim3 simBlocks((FIELD_WIDTH + FIELD_BLOCKDIM - 1) / FIELD_BLOCKDIM, (FIELD_HEIGHT + FIELD_BLOCKDIM - 1) / FIELD_BLOCKDIM);
 constexpr dim3 simThreads(FIELD_BLOCKDIM, FIELD_BLOCKDIM);
-constexpr float massThreshold = 1.0f / static_cast<float>(MAX_INIT_MASS) * 0.5f; // multiplier for mass, where a value of 1 as a result would be white. so if max init mass is 1, 2 is white.
+constexpr float massThreshold = 1.0f / static_cast<float>(MAX_INIT_MASS) / TARGET_DENSITY; // multiplier for mass. target density should be white.
 
 /// Information about the fields. Tracks pointers
 struct FieldData {

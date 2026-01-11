@@ -53,6 +53,26 @@ __global__ void Simulate(FieldData const& fieldData) {
     }
     velocity += grav_accel;
 
+    // Calculate extra force from neighbors
+    float3 neighbor_force = F3_ZERO;
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            if (x == 0 && y == 0) continue;
+            const int3 nP = make_int3(pX + x, pY + y, 0);
+            if (!bounded(nP)) continue;
+            const unsigned int nI = nP.y * FIELD_WIDTH + nP.x;
+
+            // less force from diagonal neighbors
+            const float distmult = abs(x + y) == 1 ? 1.0f : 0.707f;
+            const float forceMagnitude = max(fieldData.mass[nI] - TARGET_DENSITY, 0.0f);
+            const float3 direction = asNorm(float3(x, y, 0));
+
+            // Standard gravity formula but with acceleration canceled.
+            neighbor_force += -direction * (forceMagnitude * distmult * DENSITY_CONSTANT);
+        }
+    }
+    velocity += neighbor_force * (1.0f / mass);
+
     // Decide exact position if particles at this field move this way
     const float3 next = pos + velocity;
 
@@ -138,11 +158,24 @@ __global__ void ConvertToImage(float const* mass, unsigned char* pixels) {
     if (pX >= FIELD_WIDTH || pY >= FIELD_HEIGHT) return;
     const unsigned int pI = pY * FIELD_WIDTH + pX;
 
-    // Mass should fade from black to white
+    // Red channel should always just fade in mass.
     const unsigned char color = min(static_cast<int>(mass[pI] * massThreshold * 256), 255);
     pixels[3 * pI + 0] = color;
     pixels[3 * pI + 1] = color;
     pixels[3 * pI + 2] = color;
+
+    // Lose blue channel on density threshold 1 to become yellow.
+    float excessMass = mass[pI] - TARGET_DENSITY;
+    if (excessMass > 0) {
+        const float progress = excessMass / static_cast<float>(DENSITY_COLOR_THRESHOLD_1);
+        pixels[3 * pI + 2] = 255 - min(static_cast<int>(progress * 256), 255);
+    }
+
+    // Lose green channel next to become yellow at highest pressures
+    if (excessMass > DENSITY_COLOR_THRESHOLD_1) {
+        const float progress = (excessMass - DENSITY_COLOR_THRESHOLD_1) / static_cast<float>(DENSITY_COLOR_THRESHOLD_2);
+        pixels[3 * pI + 1] = 255 - min(static_cast<int>(progress * 256), 255);
+    }
 }
 
 void ParticleProgram::StepFrame(void *target) {
